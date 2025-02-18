@@ -196,6 +196,7 @@ export default function Home() {
                                 }}
                                 key={index}
                                 onClick={() => {
+                                  setSearch(item);
                                   window.location.hash =
                                     item;
                                 }}
