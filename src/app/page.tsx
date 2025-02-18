@@ -1,95 +1,259 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { useEffect, useState } from "react";
+import api from "./../../lib/axios";
+import useSWR from "swr";
+import Grid from "@mui/material/Grid2";
+import Link from "@mui/material/Link";
+import { Paper } from "@mui/material";
+
+interface trip {
+  title: string;
+  eid: string;
+  url: string;
+  description: string;
+  photos: string[];
+  tags: string[];
+}
+interface Respons {
+  data: trip[];
+  success: boolean;
+}
 
 export default function Home() {
+  const [search, setSearch] = useState(
+    decodeURIComponent(
+      window.location.hash.substring(1)
+    ) || ""
+  );
+  const [listData, setListData] = useState<
+    trip[]
+  >([]);
+  console.log("listData", listData);
+  const { data, error, isLoading } =
+    useSWR<Respons>(
+      `/api/trips?keyword=${search}`,
+      api
+    );
+  useEffect(() => {
+    setListData(data?.data || []);
+  }, [data]);
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <Container maxWidth="md">
+      <Box
+        sx={{
+          height: "100vh",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            paddingTop: "24px",
+          }}
+        >
+          <Typography
+            sx={{
+              fontFamily: "Noto Sans Thai",
+              fontWeight: 400,
+              fontSize: "36px",
+            }}
+          >
+            ไปเที่ยวไหนดี
+          </Typography>
+          <TextField
+            sx={{
+              width: "100%",
+              padding: "24px 24px",
+              borderColor: "#FFF",
+              "& input": {
+                textAlign: "center",
+                fontFamily: "Noto Sans Thai",
+              },
+            }}
+            hiddenLabel
+            id="filled-hidden-label-normal"
+            placeholder="ค้นหา"
+            variant="standard"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
+          />
+          <Box>
+            {listData.map((trip) => {
+              return (
+                <Box
+                  sx={{
+                    padding: "24px 24px",
+                  }}
+                  key={trip.eid}
+                >
+                  <Grid
+                    container
+                    spacing={2}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Grid
+                      size={4}
+                      sx={{
+                        display: "flex",
+                      }}
+                    >
+                      <img
+                        src={trip.photos[0]}
+                        width={250}
+                        height={300}
+                        style={{
+                          borderRadius: "20px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </Grid>
+                    <Grid
+                      size={8}
+                      sx={{
+                        display: "flex",
+                        justifyContent:
+                          "space-between",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Link
+                        sx={{
+                          fontFamily:
+                            "Noto Sans Thai",
+                          fontWeight: 600,
+                          fontSize: 16,
+                          color: "#000",
+                        }}
+                        href={trip.url}
+                        underline="hover"
+                      >
+                        {trip.title}
+                      </Link>
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontFamily:
+                              "Noto Sans Thai",
+                            fontWeight: 600,
+                            fontSize: 12,
+                            color: "#525252",
+                          }}
+                        >
+                          {trip.description + " "}
+                          <Link
+                            sx={{
+                              fontFamily:
+                                "Noto Sans Thai",
+                              fontWeight: 600,
+                              fontSize: 12,
+                              cursor: "pointer",
+                            }}
+                            href={trip.url}
+                          >
+                            อ่านต่อ
+                          </Link>
+                        </Typography>
+                      </Box>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: "12px",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontFamily:
+                              "Noto Sans Thai",
+                            fontWeight: 600,
+                            fontSize: 12,
+                            color: "#525252",
+                          }}
+                        >
+                          หมวด
+                        </Typography>
+                        {trip.tags.map(
+                          (item, index) => {
+                            return (
+                              <Box
+                                sx={{
+                                  textDecoration:
+                                    "underline",
+                                  cursor:
+                                    "pointer",
+                                }}
+                                key={index}
+                                onClick={() => {
+                                  window.location.hash =
+                                    item;
+                                }}
+                              >
+                                <Typography
+                                  sx={{
+                                    fontFamily:
+                                      "Noto Sans Thai",
+                                    fontWeight: 600,
+                                    fontSize: 12,
+                                    color:
+                                      "#525252",
+                                  }}
+                                >
+                                  {item}
+                                </Typography>
+                              </Box>
+                            );
+                          }
+                        )}
+                      </Box>
+                      <Box
+                        sx={{
+                          gap: "20px",
+                          display: "flex",
+                          flexDirection: "row",
+                          width: "100%",
+                          justifyContent:
+                            "space-evenly",
+                          alignItems: "center",
+                        }}
+                      >
+                        {trip.photos
+                          .slice(1)
+                          .map((item, index) => {
+                            return (
+                              <img
+                                src={item}
+                                width={180}
+                                height={180}
+                                style={{
+                                  borderRadius:
+                                    "20px",
+                                  objectFit:
+                                    "cover",
+                                }}
+                              ></img>
+                            );
+                          })}
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
+      </Box>
+    </Container>
   );
 }
